@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block head %}
+    {{ super() }}
+{% endblock %}
+
+
+{% block content %}
+    <h1>Step 1: Choose source image file.</h1>
+	
+	<p>Upload a file or choose from an external URL.</p>
+    <form id="uploadform" enctype="multipart/form-data" action="step2" method="post">
+		<input type="file" id="file" name="file" />
+	
+		<p><img id="uploadedimg" src="#" alt="your image" /></p>
+		
+		<input type="submit" id="submit" value="Proceed to Step 2" disabled>
+	</form>
+	
+	
+	<script>
+		$(function() {
+			function readURL(input) {
+
+				if (input.files && input.files[0]) {
+					var reader = new FileReader();
+
+					reader.onload = function (e) {
+						$('#uploadedimg').attr('src', e.target.result);
+					}
+
+					reader.readAsDataURL(input.files[0]);
+				}
+			}
+
+			$("#file").change(function(){
+				readURL(this);
+				$("#submit").attr("disabled", false);
+			});
+		
+		
+			//$( '#uploadform' ).submit(function ( e ) {
+				//var data;
+
+				//fd = new FormData();
+				//fd.append( 'file', input.files[0] );
+
+				//e.preventDefault();
+				//return false;
+			//});
+		});
+	</script>
+	
+	
+{% endblock %}

@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block head %}
+    {{ super() }}
+	<script src="/scripts/polyClip.js"></script>
+{% endblock %}
+
+
+{% block content %}
+    <h1>Step 2: Create the mask.</h1>
+	
+	<p>Click multiple points on the image to create the mask.
+	
+	<div id="canvasDiv">
+		<br/>
+		<button id="generate" type="button">Create Mask</button> 
+	</div>
+
+	<div class="clipParent" style="float:left;"> 
+	</div> 
+
+	</div>
+	
+	<script>
+		var canvasDiv = document.getElementById('canvasDiv'); 
+		var canvas = document.createElement('canvas');
+		canvas.setAttribute('id', 'canvas');
+		
+		
+		$(canvasDiv).prepend(canvas);
+		if(typeof G_vmlCanvasManager != 'undefined') { 
+			canvas = G_vmlCanvasManager.initElement(canvas); 
+		} 
+		  
+		var context = canvas.getContext('2d'); 
+		
+		var whiteCanv = document.createElement('canvas');
+		
+		var imageObj = new Image(); 
+		  
+		imageObj.onload = function() {
+			$(canvas).attr({width : this.width, height: this.height});
+			context.drawImage(imageObj,0,0); 
+			
+			// create white canvas
+			whiteCanv.width = canvas.width;
+			whiteCanv.height = canvas.height;
+			whiteCanvCtx = whiteCanv.getContext('2d');
+			whiteCanvCtx.fillStyle = "white";
+			whiteCanvCtx.fillRect(0, 0, whiteCanv.width, whiteCanv.height);
+			// end create white canv
+		}; 
+		imageObj.src = '/uploads/{{filename}}'; 
+		
+
+		  
+		var clickX = new Array(); 
+		var clickY = new Array(); 
+		var clickDrag = new Array(); 
+		var paint; 
+		  
+		function addClick(x, y, dragging) 
+		{ 
+			clickX.push(x); 
+			clickY.push(y); 
+			clickDrag.push(dragging); 
+		} 
+		  
+		function redraw(){ 
+			canvas.width = canvas.width; // Clears the canvas 
+			context.drawImage(imageObj,0,0); 
+		  
+			context.strokeStyle = "#df4b26"; 
+			context.lineJoin = "round"; 
+			context.lineWidth = 5; 
+					  
+			for(var i=0; i < clickX.length; i++) 
+			{ 
+			context.beginPath(); 
+			context.arc(clickX[i], clickY[i], 3, 0, 2 * Math.PI, false); 
+			context.fillStyle = '#000000'; 
+			context.fill(); 
+			context.lineWidth = 5; 
+			context.stroke(); 
+			} 
+		} 
+		  
+		$('#canvas').click(function(e){ 
+			var mouseX = e.pageX - this.offsetLeft; 
+			var mouseY = e.pageY - this.offsetTop; 
+				  
+			addClick(e.pageX - this.offsetLeft, e.pageY - this.offsetTop); 
+			redraw(); 
+		}); 
+		  
+		$('#generate').click(function(){ 
+			var whiteImg = whiteCanv.toDataURL("image/png");
+			$(".clipParent").empty(); 
+			$(".clipParent").prepend("<img src=\"" + whiteImg + "\" id=\"genimg\" />"); 
+			var arr = []; 
+			for(var i=0; i < clickX.length; i++){ 
+				arr.push(clickX[i]); 
+				arr.push(clickY[i]); 
+			}
+			
+			$("#genimg")[0].setAttribute("data-polyclip",arr.join(", "));
+			
+			clickX=[]; 
+			clickY=[]; 
+			redraw(); 
+			polyClip.init(); 
+		});
+	</script>
+	
+	
+{% endblock %}

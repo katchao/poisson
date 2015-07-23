@@ -1,0 +1,152 @@
+<html>
+<head>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript"></script>
+</head>
+<body>
+
+	<script type=text/javascript>
+		$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+		console.log($SCRIPT_ROOT);
+	</script>
+	
+	<h1>jQuery Example</h1>
+	
+	<p><input type=text size=5 name=a> +
+	   <input type=text size=5 name=b> =
+	   <span id=result>?</span>
+
+	<p><a href=# id=calculate>calculate server side</a>
+	
+	
+	
+	
+	<h2>Image Upload Example</h2>
+	
+	<form id="form1" enctype="multipart/form-data" action="" method="post">
+		<input type="file" id="file" name="file" />
+		<input type="submit" id="start-button" value="Start Processing" disabled>
+	</form>
+	
+	<p>The current uploaded file is:<br />
+	<img id="blah" src="#" alt="your image" />
+	<img id="blah2" src="#" alt="your image" /></p>
+	
+	<script>
+	function readURL(input) {
+
+		if (input.files && input.files[0]) {
+			var reader = new FileReader();
+
+			reader.onload = function (e) {
+				$('#blah').attr('src', e.target.result);
+			}
+
+			reader.readAsDataURL(input.files[0]);
+		}
+	}
+
+	$("#file").change(function(){
+		readURL(this);
+		$("#start-button").attr("disabled", false);
+	});
+	
+	$(function() {
+		$('#calculate').bind('click', function() {
+			$.ajax({
+			  dataType: "json",
+			  url: $SCRIPT_ROOT + '/_add_numbers',
+			  data: { a: $('input[name="a"]').val(),
+					  b: $('input[name="b"]').val() },
+			  success: function(data) {
+				console.log(data.result);
+				$("#result").html(data.result);
+				}
+			});
+		});
+		
+		$( '#form1' ).submit(function ( e ) {
+			var data;
+
+			fd = new FormData();
+			fd.append( 'file', input.files[0] );
+			
+			console.log(fd);
+
+			$.ajax({
+				url: '/process_image',
+				data: fd,
+				processData: false,
+				type: 'POST',
+				contentType: 'multipart/form-data',
+				success: function ( data ) {
+					console.log(data.result);
+					$("#blah2").html(data.result);
+					return false;
+				}
+			});
+
+			e.preventDefault();
+			return false;
+		});
+		
+
+		
+	});
+	</script>
+	
+	
+	
+	
+	
+	
+	
+	<h2>Image Example</h2>
+	
+	<form id="form1" enctype="multipart/form-data" action="" method="post">
+		<p><label for="ext_url">Input Image URL:</label><br />
+		<input type="text" id="ext_url" name="ext_url" width="100" /></p>
+	</form>
+	
+	<p><div id="show_img"></div></p>
+	
+	<p><a href="#" id="image_process">process image</a></p>
+	
+	
+	<canvas id="c"></canvas>
+	<canvas id="canvas1"></canvas>
+	
+	<script>
+		var c = document.getElementById("c").getContext("2d");
+		var imageObj = new Image();
+		
+		$("#ext_url").change(function(){
+			var value = $("#ext_url").val(); //url of image
+			imageObj.src = value;
+			c.canvas.width = imageObj.width;
+			c.canvas.height = imageObj.height;
+			c.drawImage(imageObj, 0, 0);
+		});
+	</script>
+	
+	<!--
+	<script>
+		var c = document.getElementById('c').getContext('2d');
+		
+		$("#ext_url").change(function(){
+			var value = $("#ext_url").val();
+			
+			var img = $("<img />").attr('src', value).load(function() {
+				$("#show_img").html(img);
+				console.log(img);
+				c.drawImage(img, 0, 0);
+			});
+			img.error(function(){
+				$("#show_img").html("Invalid URL.");
+			});
+		});
+	</script>
+	-->
+	
+
+</body>
+</html>
