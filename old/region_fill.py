@@ -1,4 +1,6 @@
-from PIL import Image, ImageTk
+from Tkinter import *
+from Tkinter import *
+import Image, ImageTk
 import numpy
 from scipy.sparse import lil_matrix, csr_matrix
 import scipy.sparse.linalg
@@ -18,7 +20,7 @@ def region_fill(image, mask, color=True):
         result = Image.fromarray(result_array)
         
     else:
-        image = image.split()
+        image = im.split()
         r = region_fill_gray(image[0], mask)
         g = region_fill_gray(image[1], mask)
         b = region_fill_gray(image[2], mask)
@@ -30,7 +32,6 @@ def region_fill(image, mask, color=True):
 
 
 def region_fill_gray(image, mask):
-    image_mode = image.mode
     height, width = image.size
     image = numpy.array(image)
 
@@ -131,9 +132,9 @@ def region_fill_gray(image, mask):
 #im = numpy.array([[1, 2, 3, 4, 5, 6], [7, 8, 9, 10, 11, 12], [13, 14, 15, 16, 17, 18], [19, 20, 21, 22, 23, 24], [25, 26, 27, 28, 29, 30], [31, 32, 33, 34, 35, 36]])
 #im = Image.fromarray(im)
 #m = numpy.array([[0, 0, 0, 0, 0, 0], [0, 0, 1, 1, 1, 0], [0, 0, 1, 1, 1, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0]])
-
 def test():
     im = Image.open('niccage.png')
     m = Image.open('mask.png')
-    region_fill(im, m, True)
+
+    region_fill(im, m, False)
     return
