@@ -92,8 +92,8 @@ def splice(source, target, mask, color=True):
         rgb = numpy.dstack((r, g, b))
         result = Image.fromarray(rgb)
 
-
-    result.show()
+    
+    #result.show()
     return result
 
 
