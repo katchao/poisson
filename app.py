@@ -21,6 +21,10 @@ app.config['SCRIPT_FOLDER'] = SCRIPT_FOLDER
 def index():
 	return render_template("main.html")
 
+@app.route('/create-mask')
+def create_mask():
+	return render_template("create-mask.html")
+
 
 @app.route('/submit/', methods=['POST'])
 def submit():
@@ -41,6 +45,7 @@ def submit():
 		result = splice(source_im, target_im, m_im, True)
 		result.save(os.path.join(app.config['UPLOAD_FOLDER'], result_filename), "PNG")
 		return render_template("form_submitted.html")
+
 
 
 

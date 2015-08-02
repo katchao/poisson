@@ -36,6 +36,10 @@
 
 	
 		<p><img id="uploadedimg" src="#" alt="your image" /></p>
+<br />
+		<p> <img src="{{ url_for('uploaded_file', filename = 'apple.png') }}" id="target" /></p>
+
+		<p><div id="coordinates"></div></p>
 		
 		<input type="submit" id="submit" value="Submit" disabled>
 	</form>
@@ -45,7 +49,6 @@
 	<script>
 		$(function() {
 			function readURL(input) {
-
 				if (input.files && input.files[0]) {
 					var reader = new FileReader();
 
@@ -61,6 +64,32 @@
 				readURL(this);
 				$("#submit").attr("disabled", false);
 			});
+
+
+
+
+			// gets coordinates from click on image
+			function getCoords(e, image) {
+				var offset = $(image).offset();
+				var offY = Math.floor(e.pageX - offset.left);
+				var offX = Math.floor(e.pageY - offset.top);
+				return [offY, offX];
+			};
+
+
+			$("#target").click(function(e) {
+				// get coordinates of click from image
+				offsetCoords = getCoords(e, this);
+				offY = offsetCoords[0];
+				offX = offsetCoords[1];
+
+				// check coordinates
+
+				$("#coordinates").append("offY: " + offY + "  offX: " + offX + "<br />");
+
+			});
+
+
 		});
 	</script>
 	
