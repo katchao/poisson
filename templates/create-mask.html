@@ -17,7 +17,7 @@
 	</div>
 
 	<div class="clipParent" style="float:left;"> 
-	</div>
+	</div> 
 
 
 	
@@ -99,14 +99,13 @@
 		$('#generate').click(function(){ 
 			var whiteImg = whiteCanv.toDataURL("image/png");
 			$(".clipParent").empty(); 
-			$(".clipParent").prepend
 			$(".clipParent").prepend("<img src=\"" + whiteImg + "\" id=\"genimg\" />"); 
 			var arr = []; 
 			for(var i=0; i < clickX.length; i++){ 
 				arr.push(clickX[i]); 
 				arr.push(clickY[i]); 
 			}
-
+			
 			$("#genimg")[0].setAttribute("data-polyclip", arr.join(", "));
 			
 			clickX=[]; 
