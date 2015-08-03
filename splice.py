@@ -97,9 +97,6 @@ def splice(source, target, mask, color=True):
         
         rgb = numpy.dstack((r, g, b))
         result = Image.fromarray(rgb)
-
-    
-    #result.show()
     return result
 
 
@@ -243,8 +240,8 @@ def test():
     source = Image.open('niccage.png')
     target = Image.open('apple.png')
     m = Image.open('download.png')
-    
-    splice(source, target, m, True)
+
+    final = splice(source, target, m, True)
+    final.show()
     return
 
-test()

@@ -9,7 +9,7 @@
 {% block content %}
     <h1>Step 2: Create the mask.</h1>
 	
-	<p>Click multiple points on the image to create the mask.
+	<p>Click multiple points on the image to create the mask.</p>
 	
 	<div id="canvasDiv">
 		<br/>
@@ -17,14 +17,14 @@
 	</div>
 
 	<div class="clipParent" style="float:left;"> 
-	</div> 
+	</div>
 
 
 	
 	<button id="confirm" type="button">Move on</button>
 	
 	<script>
-		var canvasDiv = document.getElementById('canvasDiv'); 
+		var canvasDiv = $('#canvasDiv'); 
 		var canvas = document.createElement('canvas');
 		canvas.setAttribute('id', 'canvas');
 		
@@ -48,7 +48,7 @@
 			whiteCanv.width = canvas.width;
 			whiteCanv.height = canvas.height;
 			whiteCanvCtx = whiteCanv.getContext('2d');
-			whiteCanvCtx.fillStyle = "white";
+			whiteCanvCtx.fillStyle = "red";
 			whiteCanvCtx.fillRect(0, 0, whiteCanv.width, whiteCanv.height);
 			// end create white canv
 		};
@@ -91,31 +91,46 @@
 		$('#canvas').click(function(e){ 
 			var mouseX = e.pageX - this.offsetLeft; 
 			var mouseY = e.pageY - this.offsetTop; 
-				  
+
 			addClick(e.pageX - this.offsetLeft, e.pageY - this.offsetTop); 
 			redraw(); 
 		}); 
 		  
 		$('#generate').click(function(){ 
 			var whiteImg = whiteCanv.toDataURL("image/png");
-			$(".clipParent").empty(); 
-			$(".clipParent").prepend("<img src=\"" + whiteImg + "\" id=\"genimg\" />"); 
+
+			$(".clipParent").empty();
+
+			$(".clipParent").prepend("<img src=\"" + whiteImg + "\" id=\"genimg\" />");
+
 			var arr = []; 
 			for(var i=0; i < clickX.length; i++){ 
 				arr.push(clickX[i]); 
 				arr.push(clickY[i]); 
 			}
-			
+
 			$("#genimg")[0].setAttribute("data-polyclip", arr.join(", "));
-			
+
 			clickX=[]; 
 			clickY=[]; 
 			redraw(); 
-			polyClip.init(); 
+			polyClip.init();
 		});
 
 		$('#confirm').click(function() {
+			var canvasResult = $("#genimg")[0];
+			var dataURL = canvasResult.toDataURL("image/png");
+			console.log(dataURL);
 
+			$.ajax({
+				type: "POST",
+				url: "/mask-send",
+				data: {
+					imgData: dataURL
+				}
+			}).done(function(data) {
+				$(".clipParent").append(data);
+			});
 		})
 	</script>
 	

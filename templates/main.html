@@ -32,7 +32,7 @@
 			<input type="text" name="target" value="apple.png" /><br />
 
 		<label for="email">Mask file:</label>
-			<input type="text" name="mask" value="niccage-mask2.png" /><br />
+			<input type="text" name="mask" value="download.png" /><br />
 
 	
 		<p><img id="uploadedimg" src="#" alt="your image" /></p>
@@ -65,9 +65,6 @@
 				$("#submit").attr("disabled", false);
 			});
 
-
-
-
 			// gets coordinates from click on image
 			function getCoords(e, image) {
 				var offset = $(image).offset();
@@ -76,7 +73,6 @@
 				return [offY, offX];
 			};
 
-
 			$("#target").click(function(e) {
 				// get coordinates of click from image
 				offsetCoords = getCoords(e, this);
@@ -84,12 +80,9 @@
 				offX = offsetCoords[1];
 
 				// check coordinates
-
 				$("#coordinates").append("offY: " + offY + "  offX: " + offX + "<br />");
 
 			});
-
-
 		});
 	</script>
 	
