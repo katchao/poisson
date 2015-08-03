@@ -5,12 +5,18 @@ from scipy.sparse import lil_matrix, csr_matrix
 import scipy.sparse.linalg
 import sys
 
-def splice(source, target, mask, color=True):
-    # create mask
+def create_mask_from_image(mask):
     mask = mask.convert('L') # grayscale
     mask = numpy.array(mask)
     mask = mask.astype(numpy.float64)
+    #mask[mask<=0] = 1 # turn black into 1
+    #mask[mask>1] = 0 # turn white into 0
     mask[mask>0] = 1
+
+    return mask
+
+def splice(source, target, mask, color=True):
+    mask = create_mask_from_image(mask)
 
     # define sizes
     if not color:
@@ -236,7 +242,7 @@ def splice_gray(source, target, mask, startX_offset, startY_offset, endX_offset,
 def test():
     source = Image.open('niccage.png')
     target = Image.open('apple.png')
-    m = Image.open('niccage-mask2.png')
+    m = Image.open('download.png')
     
     splice(source, target, m, True)
     return
