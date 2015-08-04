@@ -15,6 +15,19 @@ def create_mask_from_image(mask):
 
     return mask
 
+
+# mask is a logical array, not an Image
+def get_extent_of_region(mask, sourceh, sourcew):
+
+    return { "startX": startX, 
+              "endX": endX,
+              "startY": startY,
+              "endY": endY,
+              "region_width": region_width,
+              "region_height": region_height,
+              "half_region_width": half_region_width,
+              "half_region_height": half_region_height }
+
 def splice(source, target, mask, color=True):
     mask = create_mask_from_image(mask)
 
@@ -244,4 +257,5 @@ def test():
     final = splice(source, target, m, True)
     final.show()
     return
-
+    
+test()

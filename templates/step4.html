@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block head %}
+	{{ super() }}
+{% endblock %}
+
+{% block content %}
+	<h1>Poisson Composite Image Creator</h1>
+
+	<p><strong>Step 4:</strong> Choose where you want to paste your image.</p>
+
+	<p> <img src="{{ url_for('uploaded_file', filename = '%s' % target_filename) }}" id="target" /></p>
+
+	<p><div id="coordinates"></div></p>
+
+	<script>
+		$(function() {
+			// gets coordinates from click on image
+			function getCoords(e, image) {
+				var offset = $(image).offset();
+				var offY = Math.floor(e.pageX - offset.left);
+				var offX = Math.floor(e.pageY - offset.top);
+				return [offY, offX];
+			};
+
+			$("#target").click(function(e) {
+				// get coordinates of click from image
+				offsetCoords = getCoords(e, this);
+				offY = offsetCoords[0];
+				offX = offsetCoords[1];
+				// check coordinates
+				$("#coordinates").append("offY: " + offY + "  offX: " + offX + "<br />");
+			});
+		});
+	</script>
+	
+{% endblock %}

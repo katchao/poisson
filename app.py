@@ -21,32 +21,49 @@ app.config['SCRIPT_FOLDER'] = SCRIPT_FOLDER
 # routes
 @app.route('/')
 def index():
-	return render_template("main.html")
-
-@app.route('/create-mask')
-def create_mask():
-	return render_template("create-mask.html")
+	return render_template("step1.html")
 
 
-@app.route('/submit/', methods=['POST'])
-def submit():
+@app.route('/submit_source', methods=['POST'])
+def submit_source():
 	if request.method == 'POST':
 		source = request.files['source']
 		if source and allowed_file(source.filename):
 			filename = secure_filename(source.filename)
 			source.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
-		target = request.form['target']
-		m = request.form['mask']
-		result_filename = "result.png"
+		return render_template("step2.html", source_filename=filename)
 
-		source_im = Image.open(source.filename)
-		target_im = Image.open(target)
-		m_im = Image.open(m)
+@app.route('/submit_mask', methods=['POST'])
+def submit_mask():
+	if request.method == 'POST':
+		img_data = request.form["imgData"]
+		img_data = img_data[22:] # strips out the data:image/png;base64, part of the string
 
-		result = splice(source_im, target_im, m_im, True)
-		result.save(os.path.join(app.config['UPLOAD_FOLDER'], result_filename), "PNG")
-		return render_template("form_submitted.html")
+		maskImg = Image.open(BytesIO(img_data.decode('base64')))
+		maskImg.save(os.path.join(app.config['UPLOAD_FOLDER'], "mask.png"))
+
+		return render_template("step3.html")
+
+
+@app.route('/submit_target', methods=['POST'])
+def submit_target():
+	if request.method == 'POST':
+		target = request.files['target']
+		if target and allowed_file(target.filename):
+			filename = secure_filename(target.filename)
+			target.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+		return render_template("step4.html", target_filename=filename)
+
+
+
+
+
+@app.route('/create-mask')
+def create_mask():
+	return render_template("create-mask.html")
+
 
 @app.route('/mask-send', methods=['GET', 'POST'])
 def mask_send():
