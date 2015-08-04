@@ -29,10 +29,12 @@ def submit_source():
 	if request.method == 'POST':
 		source = request.files['source']
 		if source and allowed_file(source.filename):
-			filename = secure_filename(source.filename)
-			source.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+			global source_filename 
+			source_filename = secure_filename(source.filename)
+			source.save(os.path.join(app.config['UPLOAD_FOLDER'], source_filename))
 
-		return render_template("step2.html", source_filename=filename)
+		return render_template("step2.html", source_filename=source_filename)
+
 
 @app.route('/submit_mask', methods=['POST'])
 def submit_mask():
@@ -46,17 +48,58 @@ def submit_mask():
 		return render_template("step3.html")
 
 
+
 @app.route('/submit_target', methods=['POST'])
 def submit_target():
 	if request.method == 'POST':
+		# upload target
 		target = request.files['target']
 		if target and allowed_file(target.filename):
-			filename = secure_filename(target.filename)
-			target.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+			global target_filename
+			target_filename = secure_filename(target.filename)
+			target.save(os.path.join(app.config['UPLOAD_FOLDER'], target_filename))
 
-		return render_template("step4.html", target_filename=filename)
+			# do all the region math here and pass it into template
+			target_im = Image.open(target_filename)
+			source_im = Image.open(source_filename)
+			mask = create_mask_from_image(Image.open(os.path.join(app.config['UPLOAD_FOLDER'], "mask.png")))
+			size_info = get_size_info(source_im, target_im, mask)
+
+			targeth = size_info["targeth"]
+			targetw = size_info["targetw"]
+			half_region_height = size_info["half_region_height"]
+			half_region_width = size_info["half_region_width"]
+
+		return render_template("step4.html", target_filename=target_filename,
+												half_region_height=half_region_height,
+												half_region_width=half_region_width,
+												targeth=targeth,
+												targetw=targetw)
 
 
+
+
+@app.route('/submit_offset', methods=['POST'])
+def submit_offset():
+	if request.method == 'POST':
+		print "target: ", target_filename
+		# get offsets
+		offX = int(request.form['offX'])
+		print "offX: ", offX
+		offY = int(request.form['offY'])
+
+
+		# open images
+		target_im = Image.open(target_filename)
+		print "target: ", target_filename
+		source_im = Image.open(source_filename)
+		maskImg = Image.open(os.path.join(app.config['UPLOAD_FOLDER'], "mask.png"))
+
+		# process the images
+		result = splice(source_im, target_im, maskImg, offY, offX, True)
+		result.save(os.path.join(app.config['UPLOAD_FOLDER'], 'result.png'), "PNG")
+
+		return render_template("result.html")
 
 
 
@@ -89,8 +132,8 @@ def mask_send():
 		m_im = Image.open("download.png")
 		### END PROCESSING INPUT MASK
 
-		result = splice(source_im, target_im, maskImg, True)
-		result.save(os.path.join(app.config['UPLOAD_FOLDER'], result_filename), "PNG")
+		#result = splice(source_im, target_im, maskImg, True)
+		#result.save(os.path.join(app.config['UPLOAD_FOLDER'], result_filename), "PNG")
 		return render_template("form_submitted.html")
 		
 	if request.method == 'GET':

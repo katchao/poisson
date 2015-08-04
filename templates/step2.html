@@ -118,6 +118,19 @@
 			var canvasResult = $("#genimg")[0];
 			var dataURL = canvasResult.toDataURL("image/png");
 			console.log(dataURL);
+/*
+			var form = $('<form></form>').attr({
+				method: "POST",
+				action: $("#template_vars").attr('another-data')
+			});
+
+			var imgDataInput = $('<input type="hidden" />').attr({
+			    name: "imgData",
+			    value: dataURL
+			}).appendTo("form");
+
+			$("body").append(form);
+			*/
 
 			// create form to submit
 			var form = document.createElement("form");
@@ -131,6 +144,7 @@
 
             form.appendChild(hiddenField);
             document.body.appendChild(form);
+         
             form.submit();
 
 // TO DO: AJAX

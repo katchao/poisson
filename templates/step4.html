@@ -2,7 +2,12 @@
 
 {% block head %}
 	{{ super() }}
+
+	<meta id="template_vars" targetw="{{ targetw }}" targeth="{{ targeth }}" half_region_height="{{ half_region_height }}" half_region_width="{{ half_region_width }}"
+		another-data="{{ url_for('submit_offset') }}">
 {% endblock %}
+
+
 
 {% block content %}
 	<h1>Poisson Composite Image Creator</h1>
@@ -13,24 +18,77 @@
 
 	<p><div id="coordinates"></div></p>
 
+	<p><button id="confirm" type="button" disabled>Looks good. Proceed to the next step.</button></p>
+
 	<script>
 		$(function() {
+			// get variables
+			var targetw = Number($("#template_vars").attr('targetw'));
+			var targeth = Number($("#template_vars").attr('targeth'));
+			var half_region_width = Number($("#template_vars").attr('half_region_width'));
+			var half_region_height = Number($("#template_vars").attr('half_region_height'));
+			var offY;
+			var offX;
+
+
 			// gets coordinates from click on image
 			function getCoords(e, image) {
 				var offset = $(image).offset();
-				var offY = Math.floor(e.pageX - offset.left);
-				var offX = Math.floor(e.pageY - offset.top);
+				offY = Math.floor(e.pageX - offset.left);
+				offX = Math.floor(e.pageY - offset.top);
 				return [offY, offX];
 			};
+
+
+			// checks if user defined coordinates are valid
+			function check_offsets(offX, offY, targetw, targeth, half_region_height, half_region_width) {
+				if((offX + half_region_height > targeth-1) || (offY + half_region_width > targetw-1) || (offX - half_region_height < 0) || (offY - half_region_width < 0)) {
+					return false;
+				}
+				return true;
+			}
+
 
 			$("#target").click(function(e) {
 				// get coordinates of click from image
 				offsetCoords = getCoords(e, this);
 				offY = offsetCoords[0];
 				offX = offsetCoords[1];
+
 				// check coordinates
-				$("#coordinates").append("offY: " + offY + "  offX: " + offX + "<br />");
+				var flag = check_offsets(offX, offY, targetw, targeth, half_region_height, half_region_width);
+
+				if(!flag) {
+					alert("Please choose another set of offsets.");
+					$("#confirm").prop("disabled", true);
+				} else {
+					$("#confirm").prop("disabled", false);
+					$("#coordinates").append("offY: " + offY + "  offX: " + offX + "<br />");
+				}
 			});
+
+			// submit button function
+			$('#confirm').click(function() {
+				// create form to submit
+				var form = document.createElement("form");
+				form.setAttribute("method", "POST");
+				form.setAttribute("action", $("#template_vars").attr('another-data'));
+
+	            var hiddenField = document.createElement("input");
+	            hiddenField.setAttribute("type", "hidden");
+	            hiddenField.setAttribute("name", "offY");
+	            hiddenField.setAttribute("value", offY);
+
+	           	var hiddenField2 = document.createElement("input");
+	            hiddenField2.setAttribute("type", "hidden");
+	            hiddenField2.setAttribute("name", "offX");
+	            hiddenField2.setAttribute("value", offX);
+
+	            form.appendChild(hiddenField);
+	            form.appendChild(hiddenField2);
+	            document.body.appendChild(form);
+	            form.submit();
+			})
 		});
 	</script>
 	

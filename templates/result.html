@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block head %}
+	{{ super() }}
+{% endblock %}
+
+
+
+{% block content %}
+	<h1>Poisson Composite Image Creator</h1>
+
+	<p>Success!</p>
+
+	<img src="{{ url_for('uploaded_file', filename = 'result.png') }}" />
+	
+{% endblock %}

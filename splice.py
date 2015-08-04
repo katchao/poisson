@@ -16,32 +16,20 @@ def create_mask_from_image(mask):
     return mask
 
 
+
 # mask is a logical array, not an Image
-def get_extent_of_region(mask, sourceh, sourcew):
-
-    return { "startX": startX, 
-              "endX": endX,
-              "startY": startY,
-              "endY": endY,
-              "region_width": region_width,
-              "region_height": region_height,
-              "half_region_width": half_region_width,
-              "half_region_height": half_region_height }
-
-def splice(source, target, mask, color=True):
-    mask = create_mask_from_image(mask)
-
-    # define sizes
+# target and source are Images
+# returns a dictionary of all necessary boundary information
+def get_size_info(source, target, mask, color=True):
+    # get target and source heights and widths
     if not color:
         target = target.convert('L')
         targetw, targeth = target.size
-
         source = source.convert('L')
         sourcew, sourceh = source.size
     else:
-        targetw, targeth = target.split()[0].size;
-        sourcew, sourceh = source.split()[0].size;
-
+        targetw, targeth = target.split()[0].size
+        sourcew, sourceh = source.split()[0].size
 
     # find extent of region
     xNon, yNon = numpy.where(mask==1)
@@ -54,32 +42,37 @@ def splice(source, target, mask, color=True):
     half_region_width = region_width//2
     half_region_height = region_height//2
 
+    return {"targetw": targetw,
+            "targeth": targeth,
+            "sourcew": sourcew,
+            "sourceh": sourceh,
+            "xNon": xNon,
+            "yNon": yNon,
+            "startX": startX, 
+            "endX": endX,
+            "startY": startY,
+            "endY": endY,
+            "region_width": region_width,
+            "region_height": region_height,
+            "half_region_width": half_region_width,
+            "half_region_height": half_region_height }
+
+
+
+
+def splice(source, target, mask, offY, offX, color=True):
+    mask = create_mask_from_image(mask)
+    size_info = get_size_info(source, target, mask, color)
+
+    targetw = size_info["targetw"]
+    targeth = size_info["targeth"]
+    sourcew = size_info["sourcew"]
+    sourceh = size_info["sourceh"]
+    half_region_height = size_info["half_region_height"]
+    half_region_width = size_info["half_region_width"]
 
     #define coordinates of destination in target image if difference sizes
     if targeth != sourceh or targetw != sourcew:
-        flag = 0
-        while flag != 1:
-            # GET OFFSET VIA SOME KIND OF INPUT THING HERE
-            # currently hardcoded offsets
-            offY = 244
-            offX = 158
-
-            # print "offx minus: ", offX - half_region_height
-            # print "targetx: ", targeth-1
-            # print "offx plus: ", offX + half_region_height
-
-            # print "offy minus: ", offY - half_region_width
-            # print "targetw: ", targetw-1
-            # print "offy plus: ", offY + half_region_width
-
-
-            if (offX + half_region_height > targeth-1) or (offY + half_region_width > targetw-1) or (offX - half_region_height < 0) or (offY - half_region_width < 0):
-                raise ValueError('Destination out of bounds. Choose another location.')
-            else:
-                flag = 1
-                #print "current center: ", numpy.asarray(target)[offX, offY]
-                break
-
         startX_offset = offX - half_region_height
         startY_offset = offY - half_region_width
         endX_offset = offX + half_region_height
@@ -110,6 +103,8 @@ def splice(source, target, mask, color=True):
         
         rgb = numpy.dstack((r, g, b))
         result = Image.fromarray(rgb)
+
+
     return result
 
 
@@ -254,8 +249,7 @@ def test():
     target = Image.open('apple.png')
     m = Image.open('download.png')
 
-    final = splice(source, target, m, True)
-    final.show()
+    final = splice(source, target, m, 244, 158, True)
     return
-    
+
 test()
