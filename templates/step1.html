@@ -7,40 +7,69 @@
 {% block content %}
 	<h1>Poisson Composite Image Creator</h1>
 
-	<p><strong>Step 1:</strong> Upload your source file.</p>
+	<div id="sourceupload_div">
+		<p><strong>Step 1:</strong> Upload your source file.</p>
 
-    <form id="uploadform" enctype="multipart/form-data" action="{{ url_for('submit_source') }}" method="post">
+		<!-- Source upload form -->
+	    <form id="sourceform" enctype="multipart/form-data">
+	    	<label for="name">Source file:</label> <input type="file" id="source" name="source" />
 
-    	<label for="name">Source file:</label>
-			<input type="file" id="source" name="source" />
+			<input type="submit" id="submit" value="Submit" disabled>
+		</form>
 
-		<div id="sourcepreview"></div>
-
-		<br />
-
-		<input type="submit" id="submit" value="Submit" disabled>
-	</form>
+		<div id="sourcepreview"></div><br />
+	</div>
 
 
 
 	<script>
 		$(function() {
-			function readURL(input) {
-				if (input.files && input.files[0]) {
-					var reader = new FileReader();
+			var reader = new FileReader();
 
-					reader.onload = function (e) {
-						$("#sourcepreview").html("<img src=" + e.target.result + " />");
-					}
-
-					reader.readAsDataURL(input.files[0]);
-				}
-			}
-
+			// Source upload functions
 			$("#source").change(function(){
-				readURL(this);
-				$("#submit").attr("disabled", false);
+				if (this.files && this.files[0]) {
+					var valid = validate(this.files[0]);
+
+					if(valid) {
+						reader.onload = function (e) {
+							$("#sourcepreview").html("<img src=" + e.target.result + " />");
+						}
+						reader.readAsDataURL(this.files[0]);
+						$("#submit").prop("disabled", false);
+					}
+				}
+				
 			});
+
+			$("#sourceform").submit(function(e) {
+				// stop form from submitting normally
+				e.preventDefault();
+
+				var formData = new FormData($('#sourceform')[0]);
+
+        		// process the form
+        		$.ajax({
+            		type: 'POST', // define the type of HTTP verb we want to use (POST for our form)
+            		url: '/submit_source', // the url where we want to POST
+            		data: formData, // our data object
+
+            		contentType: false,
+            		dataType : false,
+                    processData: false
+        		})
+        		.done(function(data) {
+        			$("#sourceupload_div").hide();
+
+        			$('body').append(data);
+        		});
+
+			});
+
+
+			// Mask creation functions
+
+
 		});
 	</script>
 	

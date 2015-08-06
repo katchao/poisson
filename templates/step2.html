@@ -1,13 +1,3 @@
-{% extends "base.html" %}
-
-{% block head %}
-	{{ super() }}
-	<script src="{{ url_for('script_file', filename = 'polyclip.js') }}"></script>
-	<meta id="template_vars" data-name="{{ source_filename }}" another-data="{{ url_for('submit_mask') }}">
-{% endblock %}
-
-{% block content %}
-	<h1>Poisson Composite Image Creator</h1>
 
 	<p><strong>Step 2:</strong> Create a mask. Select the area that you would like to cut from your source.</p>
 
@@ -28,7 +18,7 @@
 		$(canvasDiv).prepend(canvas);
 		if(typeof G_vmlCanvasManager != 'undefined') { 
 			canvas = G_vmlCanvasManager.initElement(canvas); 
-		} 
+		}
 		  
 		var context = canvas.getContext('2d'); 
 		var whiteCanv = document.createElement('canvas');
@@ -42,12 +32,12 @@
 			whiteCanv.width = canvas.width;
 			whiteCanv.height = canvas.height;
 			whiteCanvCtx = whiteCanv.getContext('2d');
-			whiteCanvCtx.fillStyle = "red";
-			whiteCanvCtx.fillRect(0, 0, whiteCanv.width, whiteCanv.height);
+			//whiteCanvCtx.fillStyle = "red";
+			//whiteCanvCtx.fillRect(0, 0, whiteCanv.width, whiteCanv.height);
+			whiteCanvCtx.drawImage(imageObj, 0, 0);
 		};
 
 		// change the preloaded source image here
-		var source_filename = $("#template_vars").attr('data-name');
 		imageObj.src = '{{ url_for('uploaded_file', filename = source_filename) }}'; 
 		  
 		var clickX = new Array(); 
@@ -73,15 +63,17 @@
 					  
 			for(var i=0; i < clickX.length; i++) 
 			{
-			context.beginPath();
-			context.arc(clickX[i], clickY[i], 3, 0, 2 * Math.PI, false);
-			context.fillStyle = '#000000';
-			context.fill();
-			context.lineWidth = 5;
-			context.stroke();
+				context.beginPath();
+				context.arc(clickX[i], clickY[i], 3, 0, 2 * Math.PI, false);
+				context.fillStyle = '#000000';
+				context.fill();
+				context.lineWidth = 5;
+				context.stroke();
 			} 
 		} 
-		  
+		 
+
+		// UI functions
 		$('#canvas').click(function(e){ 
 			var mouseX = e.pageX - this.offsetLeft; 
 			var mouseY = e.pageY - this.offsetTop; 
@@ -89,10 +81,9 @@
 			addClick(e.pageX - this.offsetLeft, e.pageY - this.offsetTop); 
 			redraw(); 
 		}); 
-		  
+		
 		$('#generate').click(function(){ 
 			var whiteImg = whiteCanv.toDataURL("image/png");
-
 			$(".clipParent").empty();
 			$(".clipParent").prepend("<img src=\"" + whiteImg + "\" id=\"genimg\" />");
 
@@ -109,28 +100,16 @@
 			redraw(); 
 			polyClip.init();
 
-			$("#confirm").removeAttr("disabled");
+			$("#confirm").prop("disabled", false);
 		});
+
+
 
 		// submit button function
 		$('#confirm').click(function() {
 			// get dataURL of mask
 			var canvasResult = $("#genimg")[0];
 			var dataURL = canvasResult.toDataURL("image/png");
-			console.log(dataURL);
-/*
-			var form = $('<form></form>').attr({
-				method: "POST",
-				action: $("#template_vars").attr('another-data')
-			});
-
-			var imgDataInput = $('<input type="hidden" />').attr({
-			    name: "imgData",
-			    value: dataURL
-			}).appendTo("form");
-
-			$("body").append(form);
-			*/
 
 			// create form to submit
 			var form = document.createElement("form");
@@ -146,24 +125,7 @@
             document.body.appendChild(form);
          
             form.submit();
-
-// TO DO: AJAX
-/*
-			$.ajax({
-				type: "POST",
-				url: "/submit_mask",
-				data: {
-					imgData: dataURL
-				}
-			}).done(function(data) {
-				$(".clipParent").append(data);
-			});
-*/
 		})
 	</script>
 
 
-
-
-	
-{% endblock %}
