@@ -518,10 +518,11 @@ var polyClip = new function () {
 					 * pointerevents are supposed to be used
 					 */
 					var pointerEventCSS = r.css('pointer-events');
-					
+
 					me.polygonCache[id] = {
 						ctx: ctx,
-						imageData: ctx.getImageData?ctx.getImageData(0,0,canvas.width,canvas.height).data:null,
+
+						imageData: ctx.getImageData ? ctx.getImageData(0,0,canvas.width,canvas.height).data:null,
 						pointerEventCSS: pointerEventCSS?pointerEventCSS.toLowerCase():null
 					}
 					
