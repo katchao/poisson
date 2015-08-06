@@ -12,60 +12,54 @@
 	<p><strong>Step 2:</strong> Create a mask. Select the area that you would like to cut from your source.</p>
 
 	<p>Click multiple points on the image to create the mask.</p>
-		<div id="canvasDiv"></div>
-
-		<div class="clipParent"></div>
+		<div id="canvasDiv"></div> <!-- contains the canvas for the source image -->
+		<div id="sourceImageDiv" class="clipParent"></div> <!-- shows the result of the clipping -->
+		<div id="maskDiv" class="clipParent" style="float: left; margin-left: -1000px;"></div> <!-- actual mask sent to the backend -->
 
 		<p><button id="generate" type="button" disabled>Create Mask</button></p>
-
+		<p><button id="reset" type="button" disabled>Reset</button></p>
 		<p><button id="confirm" type="button" disabled>Looks good. Proceed to the next step.</button></p>
 
 	<script>
-		var canvasDiv = $('#canvasDiv'); 
+		// setup
 		var canvas = document.createElement('canvas');
 		canvas.setAttribute('id', 'canvas');
-		
-		$(canvasDiv).prepend(canvas);
+		$("#canvasDiv").prepend(canvas);
+
 		if(typeof G_vmlCanvasManager != 'undefined') { 
 			canvas = G_vmlCanvasManager.initElement(canvas); 
 		} 
 		  
 		var context = canvas.getContext('2d'); 
-		var whiteCanv = document.createElement('canvas');
-		var imageObj = new Image(); 
+		var mask_canv = document.createElement('canvas');
+		var source_image = new Image(); 
 		  
-		imageObj.onload = function() {
+		source_image.onload = function() {
 			$(canvas).attr({width : this.width, height: this.height});
-			context.drawImage(imageObj,0,0); 
+			context.drawImage(source_image,0,0); 
 			
 			// create white canvas
-			whiteCanv.width = canvas.width;
-			whiteCanv.height = canvas.height;
-			whiteCanvCtx = whiteCanv.getContext('2d');
-			whiteCanvCtx.fillStyle = "red";
-			whiteCanvCtx.fillRect(0, 0, whiteCanv.width, whiteCanv.height);
+			mask_canv.width = canvas.width;
+			mask_canv.height = canvas.height;
+			mask_canv_context = mask_canv.getContext('2d');
+			mask_canv_context.fillStyle = "red";
+			mask_canv_context.fillRect(0, 0, mask_canv.width, mask_canv.height);
 		};
 
-		// change the preloaded source image here
-		var source_filename = $("#template_vars").attr('data-name');
-		imageObj.src = '{{ url_for('uploaded_file', filename = source_filename) }}'; 
+		var source_filename = $("#template_vars").attr('data-name'); // change the preloaded source image here
+		source_image.src = '{{ url_for('uploaded_file', filename = source_filename) }}';
 		  
 		var clickX = new Array(); 
 		var clickY = new Array(); 
 		var clickDrag = new Array(); 
-		var paint; 
-		  
-		function addClick(x, y, dragging) 
-		{ 
-			clickX.push(x); 
-			clickY.push(y); 
-			clickDrag.push(dragging); 
-			$("#generate").removeAttr("disabled");
-		} 
-		  
-		function redraw(){ 
+		var paint;
+
+
+		
+		// canvas functions
+		function redraw() {
 			canvas.width = canvas.width; // Clears the canvas 
-			context.drawImage(imageObj,0,0);
+			context.drawImage(source_image, 0, 0);
 		  
 			context.strokeStyle = "#df4b26";
 			context.lineJoin = "round";
@@ -73,28 +67,34 @@
 					  
 			for(var i=0; i < clickX.length; i++) 
 			{
-			context.beginPath();
-			context.arc(clickX[i], clickY[i], 3, 0, 2 * Math.PI, false);
-			context.fillStyle = '#000000';
-			context.fill();
-			context.lineWidth = 5;
-			context.stroke();
-			} 
-		} 
-		  
+				context.beginPath();
+				context.arc(clickX[i], clickY[i], 3, 0, 2 * Math.PI, false);
+				context.fillStyle = '#000000';
+				context.fill();
+				context.lineWidth = 5;
+				context.stroke();
+			}
+		}
+
 		$('#canvas').click(function(e){ 
 			var mouseX = e.pageX - this.offsetLeft; 
 			var mouseY = e.pageY - this.offsetTop; 
 
-			addClick(e.pageX - this.offsetLeft, e.pageY - this.offsetTop); 
-			redraw(); 
-		}); 
-		  
-		$('#generate').click(function(){ 
-			var whiteImg = whiteCanv.toDataURL("image/png");
+			clickX.push(e.pageX - this.offsetLeft); 
+			clickY.push(e.pageY - this.offsetTop);
 
-			$(".clipParent").empty();
-			$(".clipParent").prepend("<img src=\"" + whiteImg + "\" id=\"genimg\" />");
+			$("#generate").prop("disabled", false);
+			redraw(); 
+		});
+
+		  
+		// button functions
+		$('#generate').click(function(){ 
+			var mask_image_dataURL = mask_canv.toDataURL("image/png");
+
+
+			$("#maskDiv").html("<img src=\"" + mask_image_dataURL + "\" id=\"mask_image\" />");
+			$("#sourceImageDiv").html("<img src=\"" + source_image.src + "\" id=\"source_image\" />");
 
 			var arr = []; 
 			for(var i=0; i < clickX.length; i++){ 
@@ -102,35 +102,35 @@
 				arr.push(clickY[i]); 
 			}
 
-			$("#genimg")[0].setAttribute("data-polyclip", arr.join(", "));
+			$("#mask_image")[0].setAttribute("data-polyclip", arr.join(", "));
+			$("#source_image")[0].setAttribute("data-polyclip", arr.join(", "));
 
-			clickX=[]; 
-			clickY=[]; 
-			redraw(); 
+			$("#canvasDiv").hide();
+			$("#sourceImageDiv").show();
 			polyClip.init();
 
-			$("#confirm").removeAttr("disabled");
+			$("#confirm").prop("disabled", false);
+			$("#reset").prop("disabled", false);
+			$("#generate").prop("disabled", true);
 		});
 
-		// submit button function
+		$('#reset').click(function() {
+			clickX = []; 
+			clickY = [];
+			redraw();
+
+			$("#canvasDiv").show();
+			$("#sourceImageDiv").hide();
+
+			$("#confirm").prop("disabled", true);
+			$("#reset").prop("disabled", true);
+			$("#generate").prop("disabled", true);
+		});
+
 		$('#confirm').click(function() {
 			// get dataURL of mask
-			var canvasResult = $("#genimg")[0];
-			var dataURL = canvasResult.toDataURL("image/png");
-			console.log(dataURL);
-/*
-			var form = $('<form></form>').attr({
-				method: "POST",
-				action: $("#template_vars").attr('another-data')
-			});
-
-			var imgDataInput = $('<input type="hidden" />').attr({
-			    name: "imgData",
-			    value: dataURL
-			}).appendTo("form");
-
-			$("body").append(form);
-			*/
+			var mask_result = $("#mask_image")[0];
+			var dataURL = mask_result.toDataURL("image/png");
 
 			// create form to submit
 			var form = document.createElement("form");
@@ -146,19 +146,6 @@
             document.body.appendChild(form);
          
             form.submit();
-
-// TO DO: AJAX
-/*
-			$.ajax({
-				type: "POST",
-				url: "/submit_mask",
-				data: {
-					imgData: dataURL
-				}
-			}).done(function(data) {
-				$(".clipParent").append(data);
-			});
-*/
 		})
 	</script>
 
