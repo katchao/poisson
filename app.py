@@ -50,14 +50,13 @@ def submit_source():
 @app.route('/submit_mask', methods=['POST'])
 def submit_mask():
 	if request.method == 'POST':
-		img_data = request.form["imgData"]
+		img_data = request.values['imgData']
 		img_data = img_data[22:] # strips out the data:image/png;base64, part of the string
 
 		maskImg = Image.open(BytesIO(img_data.decode('base64')))
 		maskImg.save(os.path.join(app.config['UPLOAD_FOLDER'], "mask.png"))
 
 		return render_template("step3.html")
-
 
 
 @app.route('/submit_target', methods=['POST'])

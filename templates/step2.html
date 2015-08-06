@@ -2,13 +2,16 @@
 	<p><strong>Step 2:</strong> Create a mask. Select the area that you would like to cut from your source.</p>
 
 	<p>Click multiple points on the image to create the mask.</p>
+	
+	<form id="maskform" enctype="multipart/form-data">
 		<div id="canvasDiv"></div> <!-- contains the canvas for the source image -->
 		<div id="sourceImageDiv" class="clipParent"></div> <!-- shows the result of the clipping -->
 		<div id="maskDiv" class="clipParent" style="float: left; margin-left: -1000px;"></div> <!-- actual mask sent to the backend -->
 
 		<p><button id="generate" type="button" disabled>Create Mask</button></p>
 		<p><button id="reset" type="button" disabled>Reset</button></p>
-		<p><button id="confirm" type="button" disabled>Looks good. Proceed to the next step.</button></p>
+		<p><input type="submit" id="confirm" value="Looks good. Proceed to the next step." disabled></p>
+	</form>
 
 	<script>
 		// setup
@@ -45,7 +48,6 @@
 		var paint;
 
 
-		
 		// canvas functions
 		function redraw() {
 			canvas.width = canvas.width; // Clears the canvas 
@@ -117,25 +119,25 @@
 			$("#generate").prop("disabled", true);
 		});
 
-		$('#confirm').click(function() {
+		$('#maskform').submit(function(e) {
+			e.preventDefault();
+
 			// get dataURL of mask
 			var mask_result = $("#mask_image")[0];
 			var dataURL = mask_result.toDataURL("image/png");
 
-			// create form to submit
-			var form = document.createElement("form");
-			form.setAttribute("method", "POST");
-			form.setAttribute("action", "/submit_mask");
+		    // process the form
+    		$.ajax({
+        		type: 'POST',
+        		url: '/submit_mask', // the url where we want to POST
+        		data: { imgData: dataURL },
+        		cache: false,
+    		})
+    		.done(function(data) {
+    			$('body').html(data);
+    		});
 
-            var hiddenField = document.createElement("input");
-            hiddenField.setAttribute("type", "hidden");
-            hiddenField.setAttribute("name", "imgData");
-            hiddenField.setAttribute("value", dataURL);
-
-            form.appendChild(hiddenField);
-            document.body.appendChild(form);
-         
-            form.submit();
+    		return false;
 		})
 	</script>
 
