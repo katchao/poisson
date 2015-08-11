@@ -25,13 +25,15 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['SCRIPT_FOLDER'] = SCRIPT_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024 # 16 MB
 app.config.from_object(__name__)
-db = shelve
+db = {}
 
 
 
 # routes
 @app.route('/')
 def index():
+	db.clear()
+	print "db keys: ", db.keys()
 	return render_template("step1.html")
 
 
@@ -64,24 +66,23 @@ def submit_target():
 		target = request.files['target']
 		if target and allowed_file(target.filename):
 			db['target_filename'] = secure_filename(target.filename)
+			print "db keys: ", db.keys()
 			target.save(os.path.join(app.config['UPLOAD_FOLDER'], db['target_filename']))
 
 			# do all the region math here and pass it into template
 			target_im = Image.open(db['target_filename'])
 			source_im = Image.open(db['source_filename'])
 			mask = create_mask_from_image(Image.open(os.path.join(app.config['UPLOAD_FOLDER'], "mask.png")))
+			db['mask'] = mask
 			size_info = get_size_info(source_im, target_im, mask)
 
-			targeth = size_info["targeth"]
-			targetw = size_info["targetw"]
-			half_region_height = size_info["half_region_height"]
-			half_region_width = size_info["half_region_width"]
+			db.update(size_info) # sets db values
 
-		return render_template("step4.html", target_filename=db['target_filename'],
-												half_region_height=half_region_height,
-												half_region_width=half_region_width,
-												targeth=targeth,
-												targetw=targetw)
+			return render_template("step4.html", target_filename=db['target_filename'],
+												half_region_height=db['half_region_height'],
+												half_region_width=db['half_region_width'],
+												targeth=db['targeth'],
+												targetw=db['targetw'])
 
 
 @app.route('/submit_offset', methods=['POST'])
@@ -94,14 +95,12 @@ def submit_offset():
 		# open images
 		target_im = Image.open(db['target_filename'])
 		source_im = Image.open(db['source_filename'])
+
 		maskImg = Image.open(os.path.join(app.config['UPLOAD_FOLDER'], "mask.png"))
 
-		# process the images
-		result = splice(source_im, target_im, maskImg, offY, offX, True)
+		result = splice(source_im, target_im, db['mask'], offY, offX, db)
 		result.save(os.path.join(app.config['UPLOAD_FOLDER'], 'result.png'), "PNG")
-
-		print "keys: ", db.keys()
-		db.close()
+		print "db keys: ", db.keys()
 		return render_template("result.html")
 
 
@@ -125,5 +124,5 @@ def allowed_file(filename):
 
 if __name__ == '__main__':
 	app.debug=True
-	db = shelve.open(os.path.join(app.root_path, app.config['SHELVE_DB']), protocol=HIGHEST_PROTOCOL, writeback=False)
+	#db = shelve.open(os.path.join(app.root_path, app.config['SHELVE_DB']), protocol=HIGHEST_PROTOCOL, writeback=False)
 	app.run()
