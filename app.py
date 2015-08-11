@@ -37,14 +37,12 @@ def index():
 
 @app.route('/submit_source', methods=['POST'])
 def submit_source():
-	if request.method == 'POST':
+	if request.method == 'POST' and 'source' in request.files:
 		source = request.files['source']
-		if source and allowed_file(source.filename):
-			global source_filename 
-			source_filename = secure_filename(source.filename)
-			source.save(os.path.join(app.config['UPLOAD_FOLDER'], source_filename))
+		db['source_filename'] = secure_filename(source.filename)
+		source.save(os.path.join(app.config['UPLOAD_FOLDER'], db['source_filename']))
 
-		return render_template("step2.html", source_filename=source_filename)
+		return render_template("step2.html", source_filename=db['source_filename'])
 
 
 @app.route('/submit_mask', methods=['POST'])
@@ -65,13 +63,12 @@ def submit_target():
 		# upload target
 		target = request.files['target']
 		if target and allowed_file(target.filename):
-			global target_filename
-			target_filename = secure_filename(target.filename)
-			target.save(os.path.join(app.config['UPLOAD_FOLDER'], target_filename))
+			db['target_filename'] = secure_filename(target.filename)
+			target.save(os.path.join(app.config['UPLOAD_FOLDER'], db['target_filename']))
 
 			# do all the region math here and pass it into template
-			target_im = Image.open(target_filename)
-			source_im = Image.open(source_filename)
+			target_im = Image.open(db['target_filename'])
+			source_im = Image.open(db['source_filename'])
 			mask = create_mask_from_image(Image.open(os.path.join(app.config['UPLOAD_FOLDER'], "mask.png")))
 			size_info = get_size_info(source_im, target_im, mask)
 
@@ -80,7 +77,7 @@ def submit_target():
 			half_region_height = size_info["half_region_height"]
 			half_region_width = size_info["half_region_width"]
 
-		return render_template("step4.html", target_filename=target_filename,
+		return render_template("step4.html", target_filename=db['target_filename'],
 												half_region_height=half_region_height,
 												half_region_width=half_region_width,
 												targeth=targeth,
@@ -90,39 +87,22 @@ def submit_target():
 @app.route('/submit_offset', methods=['POST'])
 def submit_offset():
 	if request.method == 'POST':
-		print "target: ", target_filename
 		# get offsets
 		offX = int(request.form['offX'])
-		print "offX: ", offX
 		offY = int(request.form['offY'])
 
-
 		# open images
-		target_im = Image.open(target_filename)
-		print "target: ", target_filename
-		source_im = Image.open(source_filename)
+		target_im = Image.open(db['target_filename'])
+		source_im = Image.open(db['source_filename'])
 		maskImg = Image.open(os.path.join(app.config['UPLOAD_FOLDER'], "mask.png"))
 
 		# process the images
 		result = splice(source_im, target_im, maskImg, offY, offX, True)
 		result.save(os.path.join(app.config['UPLOAD_FOLDER'], 'result.png'), "PNG")
 
+		print "keys: ", db.keys()
+		db.close()
 		return render_template("result.html")
-
-
-
-
-# db test
-@app.route('/<message>')
-def write_and_list(message):
-    db.setdefault('messages', [])
-    db['messages'].append(message)
-    db['asdf'] = "hello"
-    print "test:", db['asdf']
-    print "another test: ", db['messages']
-    print "keys: ", db.keys()
-    return app.response_class('\n', mimetype='text/plain')
-
 
 
 
