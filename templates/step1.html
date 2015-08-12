@@ -5,20 +5,16 @@
 {% endblock %}
 
 {% block content %}
-	<h1>Poisson Composite Image Creator</h1>
+	<p><strong>Step 1:</strong> Upload your source file.</p>
 
-	<div id="sourceupload_div">
-		<p><strong>Step 1:</strong> Upload your source file.</p>
+	<!-- Source upload form -->
+    <form id="sourceform" enctype="multipart/form-data">
+    	<label for="name">Source file:</label> <input type="file" id="source" name="source" />
 
-		<!-- Source upload form -->
-	    <form id="sourceform" enctype="multipart/form-data">
-	    	<label for="name">Source file:</label> <input type="file" id="source" name="source" />
+		<input type="submit" id="submit" value="Submit" disabled>
+	</form>
 
-			<input type="submit" id="submit" value="Submit" disabled>
-		</form>
-
-		<div id="sourcepreview"></div><br />
-	</div>
+	<div id="sourcepreview"></div><br />
 
 
 
@@ -59,9 +55,7 @@
                     processData: false
         		})
         		.done(function(data) {
-        			$("#sourceupload_div").hide();
-
-        			$('body').append(data);
+        			$('#main-content').html(data);
         		});
 
 			});

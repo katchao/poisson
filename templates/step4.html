@@ -1,24 +1,15 @@
-{% extends "base.html" %}
-
-{% block head %}
-	{{ super() }}
 
 	<meta id="template_vars" targetw="{{ targetw }}" targeth="{{ targeth }}" half_region_height="{{ half_region_height }}" half_region_width="{{ half_region_width }}"
 		another-data="{{ url_for('submit_offset') }}">
-{% endblock %}
-
-
-
-{% block content %}
-	<h1>Poisson Composite Image Creator</h1>
 
 	<p><strong>Step 4:</strong> Choose where you want to paste your image.</p>
 
 	<p> <img src="{{ url_for('uploaded_file', filename = '%s' % target_filename) }}" id="target" /></p>
 
-	<p><div id="coordinates"></div></p>
+	<form id="offsetform" enctype="multipart/form-data">
+	</form>
 
-	<p><button id="confirm" type="button" disabled>Looks good. Proceed to the next step.</button></p>
+	<p><div id="coordinates"></div></p>
 
 	<script>
 		$(function() {
@@ -60,36 +51,28 @@
 
 				if(!flag) {
 					alert("Please choose another set of offsets.");
-					$("#confirm").prop("disabled", true);
-				} else {
-					$("#confirm").prop("disabled", false);
-					$("#coordinates").append("offY: " + offY + "  offX: " + offX + "<br />");
+				} else { // offsets okay
+					$('#offsetform').submit();
 				}
 			});
 
 			// submit button function
-			$('#confirm').click(function() {
-				// create form to submit
-				var form = document.createElement("form");
-				form.setAttribute("method", "POST");
-				form.setAttribute("action", $("#template_vars").attr('another-data'));
+			$('#offsetform').submit(function(e) {
+				e.preventDefault();
 
-	            var hiddenField = document.createElement("input");
-	            hiddenField.setAttribute("type", "hidden");
-	            hiddenField.setAttribute("name", "offY");
-	            hiddenField.setAttribute("value", offY);
+		    	// process the form
+    			$.ajax({
+        			type: 'POST',
+        			url: '/submit_offset', // the url where we want to POST
+        			data: { offY: offY, offX: offX },
+        			cache: false,
+    			})
+    			.done(function(data) {
+    				$('#main-content').html(data);
+    			});
 
-	           	var hiddenField2 = document.createElement("input");
-	            hiddenField2.setAttribute("type", "hidden");
-	            hiddenField2.setAttribute("name", "offX");
-	            hiddenField2.setAttribute("value", offX);
-
-	            form.appendChild(hiddenField);
-	            form.appendChild(hiddenField2);
-	            document.body.appendChild(form);
-	            form.submit();
-			})
+    			return false;
+			});
 		});
 	</script>
 	
-{% endblock %}
