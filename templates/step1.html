@@ -5,19 +5,26 @@
 {% endblock %}
 
 {% block content %}
-	<p><strong>Step 1:</strong> Upload your source file.</p>
+	
+	<p>Welcome to the automatic image composite stitcher! This is an application that will allow you to (almost) seamlessly create a composite of two images.</p>
 
-	<!-- Source upload form -->
-    <form id="sourceform" enctype="multipart/form-data">
-    	<label for="name">Source file:</label> <input type="file" id="source" name="source" />
+	<p>The first step is to upload the image that you want to cut a piece out of to put on another image.</p>
 
-		<input type="submit" id="submit" value="Submit" disabled>
-	</form>
+	<div class="main">
+		<!-- Source upload form -->
+	    <form id="sourceform" enctype="multipart/form-data">
+	    	<label for="name">Select an image file:</label>
+	    	<input type="file" id="source" name="source" />
+		</form>
 
-	<div id="sourcepreview"></div><br />
+		<p id="submitsource" class="button" style="display: none"><a href="#" id="submit">Click here to proceed to the next step. >></a></p>
+
+		<div class="message invalid" id="sourcepreview">No image has been selected yet!</div>
+	</div>
 
 
 
+	<!-- Javascript -->
 	<script>
 		$(function() {
 			var reader = new FileReader();
@@ -27,16 +34,36 @@
 				if (this.files && this.files[0]) {
 					var valid = validate(this.files[0]);
 
-					if(valid) {
+					if(valid == -1) { // wrong filetype
+						$('#sourcepreview').attr('class', 'message invalid').show();
+						$('#sourcepreview').html('The file is of the wrong type. :( Please choose either a JPG, PNG, or GIF file.');
+						$('#submitsource').hide();
+					}
+
+					if(valid == -2) { // wrong file size
+						$('#sourcepreview').attr('class', 'message invalid').show();
+						$('#sourcepreview').html('The file exceeds 1MB. :( Please choose a smaller file.');
+						$('#submitsource').hide();
+					}
+
+					// image is valid
+					if(valid == 1) {
 						reader.onload = function (e) {
-							$("#sourcepreview").html("<img src=" + e.target.result + " />");
+							$('#sourcepreview').attr('class', 'message valid').show();
+							$('#submitsource').show();
+							$("#sourcepreview").html("Image Preview: <p><img src=" + e.target.result + " /></p>");
 						}
 						reader.readAsDataURL(this.files[0]);
-						$("#submit").prop("disabled", false);
 					}
 				}
 				
 			});
+
+
+			$('#submitsource').click(function(e) {
+				$('#sourceform').submit();
+			});
+
 
 			$("#sourceform").submit(function(e) {
 				// stop form from submitting normally
@@ -59,10 +86,6 @@
         		});
 
 			});
-
-
-			// Mask creation functions
-
 
 		});
 	</script>

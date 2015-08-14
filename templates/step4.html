@@ -2,17 +2,25 @@
 	<meta id="template_vars" targetw="{{ targetw }}" targeth="{{ targeth }}" half_region_height="{{ half_region_height }}" half_region_width="{{ half_region_width }}"
 		another-data="{{ url_for('submit_offset') }}">
 
-	<p><strong>Step 4:</strong> Choose where you want to paste your image.</p>
 
-	<p> <img src="{{ url_for('uploaded_file', filename = '%s' % target_filename) }}" id="target" /></p>
 
-	<form id="offsetform" enctype="multipart/form-data">
-	</form>
+	<p>And finally, choose where you want to paste onto by clicking somewhere below!</p>
 
-	<p><div id="coordinates"></div></p>
+	<div class="main">
+		<p><img src="{{ url_for('uploaded_file', filename = '%s' % target_filename) }}" id="target" /></p>
+
+		<form id="offsetform" enctype="multipart/form-data">
+		</form>
+
+		<div class="message invalid" id="messageresult" style="display:none">The place that you have chosen is invalid. It's probably too far on the edge of the image given the size of the cut out region that you have defined earlier.<br /><br />
+
+		Try choosing somewhere more in the middle of your image if this is the case.
+		</div>
+	</div>
 
 	<script>
 		$(function() {
+
 			// get variables
 			var targetw = Number($("#template_vars").attr('targetw'));
 			var targeth = Number($("#template_vars").attr('targeth'));
@@ -20,6 +28,7 @@
 			var half_region_height = Number($("#template_vars").attr('half_region_height'));
 			var offY;
 			var offX;
+			var num_errors=0;
 
 
 			// gets coordinates from click on image
@@ -50,15 +59,28 @@
 				var flag = check_offsets(offX, offY, targetw, targeth, half_region_height, half_region_width);
 
 				if(!flag) {
-					alert("Please choose another set of offsets.");
-				} else { // offsets okay
+					num_errors++;
+
+					if(num_errors >= 5) {
+						$('#messageresult').html('It seems as if you\'re constantly selecting an invalid point. It might be the case that the region you cut out earlier is bigger than the image that you\'re trying to paste on.<br /><br />Unfortunately, if that is so, you will have to select either a smaller region or a bigger image to paste on. :(');
+					}
+
+					$('#messageresult').show();
+				}
+
+				else { // offsets okay
 					$('#offsetform').submit();
 				}
 			});
 
 			// submit button function
 			$('#offsetform').submit(function(e) {
+
 				e.preventDefault();
+
+				// loading message
+				$('#messageresult').html('Prepare yourself. Your image is processing...');
+				$('#messageresult').attr('class', 'message valid').show();
 
 		    	// process the form
     			$.ajax({

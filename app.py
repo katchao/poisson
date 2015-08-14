@@ -13,7 +13,6 @@ from contextlib import closing
 
 # constants
 UPLOAD_FOLDER = 'images'
-SCRIPT_FOLDER = 'scripts'
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 SHELVE_DB = 'shelve.db'
 
@@ -22,7 +21,6 @@ SHELVE_DB = 'shelve.db'
 # config
 app = Flask(__name__, static_url_path="")
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['SCRIPT_FOLDER'] = SCRIPT_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024 # 16 MB
 app.config.from_object(__name__)
 db = {}
@@ -109,11 +107,6 @@ def submit_offset():
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
 	return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
-
-
-@app.route('/scripts/<filename>')
-def script_file(filename):
-	return send_from_directory(app.config['SCRIPT_FOLDER'], filename)
 
 
 

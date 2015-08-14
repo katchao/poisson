@@ -1,17 +1,23 @@
 
-	<p><strong>Step 2:</strong> Create a mask. Select the area that you would like to cut from your source.</p>
+	<p>The next step is to select the area in the image that you would like to cut out and paste.</p>
 
-	<p>Click multiple points on the image to create the mask.</p>
-	
-	<form id="maskform" enctype="multipart/form-data">
-		<div id="canvasDiv"></div> <!-- contains the canvas for the source image -->
-		<div id="sourceImageDiv" class="clipParent"></div> <!-- shows the result of the clipping -->
-		<div id="maskDiv" class="clipParent" style="float: left; margin-left: -1000px;"></div> <!-- actual mask sent to the backend -->
+	<div class="main">
+		Click multiple points on the image to create the mask.<br /><br />
+		
+		<form id="maskform" enctype="multipart/form-data">
+					<div id="maskDiv" class="clipParent" style="float: left; margin-left: -1000px;"></div> <!-- actual mask sent to the backend -->
+			<div id="canvasDiv"></div> <!-- contains the canvas for the source image -->
+			<div id="sourceImageDiv" class="clipParent"></div> <!-- shows the result of the clipping -->
 
-		<p><button id="generate" type="button" disabled>Create Mask</button></p>
-		<p><button id="reset" type="button" disabled>Reset</button></p>
-		<p><input type="submit" id="confirm" value="Looks good. Proceed to the next step." disabled></p>
-	</form>
+			<div class="padding" style="display:none"></div>
+
+				<span class="button"><a href="#" id="generate" style="display: none">Create Mask</a></span>
+				<span class="button"><a href="#" id="reset" style="display: none">Reset</a></span>&nbsp;
+				<span class="button"><a href="#" id="confirm" style="display: none">Looks good. Proceed to the next step. >></a></span>
+		</form>
+	</div>
+
+
 
 	<script>
 		// setup
@@ -75,7 +81,11 @@
 			clickX.push(e.pageX - this.offsetLeft); 
 			clickY.push(e.pageY - this.offsetTop);
 
-			$("#generate").prop("disabled", false);
+			if(clickX.length >= 3) {
+				$(".padding").show();
+				$("#generate").show();
+			}
+
 			redraw();
 		});
 
@@ -83,7 +93,6 @@
 		// button functions
 		$('#generate').click(function(){ 
 			var mask_image_dataURL = mask_canv.toDataURL("image/png");
-
 
 			$("#maskDiv").html("<img src=\"" + mask_image_dataURL + "\" id=\"mask_image\" />");
 			$("#sourceImageDiv").html("<img src=\"" + source_image.src + "\" id=\"source_image\" />");
@@ -101,10 +110,12 @@
 			$("#sourceImageDiv").show();
 			polyClip.init();
 
-			$("#confirm").prop("disabled", false);
-			$("#reset").prop("disabled", false);
-			$("#generate").prop("disabled", true);
+			$(".padding").show();
+			$("#confirm").show();
+			$("#reset").show();
+			$("#generate").hide();
 		});
+
 
 		$('#reset').click(function() {
 			clickX = []; 
@@ -114,10 +125,17 @@
 			$("#canvasDiv").show();
 			$("#sourceImageDiv").hide();
 
-			$("#confirm").prop("disabled", true);
-			$("#reset").prop("disabled", true);
-			$("#generate").prop("disabled", true);
+			$(".padding").hide();
+			$("#confirm").hide();
+			$("#reset").hide();
+			$("#generate").hide();
 		});
+
+
+		$('#confirm').click(function() {
+			$('#maskform').submit();
+		});
+
 
 		$('#maskform').submit(function(e) {
 			e.preventDefault();

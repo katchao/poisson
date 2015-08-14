@@ -1,0 +1,83 @@
+body {
+	background: -webkit-linear-gradient(#fff, #b8e5ff);
+	background: -o-linear-gradient(#fff, #b8e5ff);
+	background: -moz-linear-gradient(#fff, #b8e5ff);
+	background: linear-gradient(#fff, #b8e5ff);
+	font-family: "Trebuchet MS", Helvetica, sans-serif;
+	margin: 0px;
+	color: #64666a;
+}
+
+h1 {
+	color: #2a355f;
+	cursor: default;
+}
+
+a:link, a:active, a:visited {
+	text-decoration: none;
+	font-weight: bold;
+	color: #e61818;
+}
+
+a:hover {
+	color: #000;
+}
+
+input {
+	font-size: 13px;
+}
+
+label {
+	font-weight: bold;
+}
+
+#container {
+	padding-top: 20px;
+	width: 80%;
+	margin: auto;
+}
+
+.main {
+	color: #000;
+	font-size: 17px;
+	background: #fff;
+	margin: 20px;
+	border: 1px solid #425087;
+	border-radius: 20px;
+	padding: 20px;
+}
+
+.message {
+	padding: 15px;
+	margin-left: 20px;
+	margin-right: 20px;
+	font-style: italic;
+	color: #64666a;
+}
+
+.invalid {
+	background: #edaeae;
+}
+
+.valid {
+	background: #aeedc7;
+}
+
+.button a:link, .button a:active, .button a:visited {
+	background: #e61818;
+	color: #fff;
+	border: 1px solid #e61818;
+	border-radius: 5px;
+	padding: 3px 5px 3px 5px;
+}
+
+.button a:hover {
+	background: #fff;
+	color: #e61818;
+}
+
+
+.padding {
+	display: block;
+	height: 15px;
+}
