@@ -37,7 +37,7 @@ label {
 	margin: auto;
 }
 
-.main {
+#main-content {
 	color: #000;
 	font-size: 17px;
 	background: #fff;
@@ -80,4 +80,9 @@ label {
 .padding {
 	display: block;
 	height: 15px;
+}
+
+#maskDiv {
+	float: left;
+	margin-left: -100000px;
 }

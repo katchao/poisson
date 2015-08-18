@@ -1,7 +1,9 @@
-<p>Success! :)</p>
+Success! :)
 
 <div class="main">
 
-	<img src="{{ url_for('uploaded_file', filename = 'result.png') }}" />
+	<img src="{{ url_for('uploaded_file', filename = '%s' % result_filename) }}" />
+
+	<p class="button"><a href="/">And now click here to try it all again!</a></p>
 
 </div>
