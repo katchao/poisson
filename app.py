@@ -154,5 +154,5 @@ def delete_files():
 
 
 if __name__ == '__main__':
-	app.debug = !PROD
+	app.debug = not settings.PROD
 	app.run()
