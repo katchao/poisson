@@ -6,17 +6,15 @@ from splice import *
 from PIL import Image
 from io import BytesIO
 import base64
-import shelve
-from cPickle import HIGHEST_PROTOCOL
 from contextlib import closing
 import random
 import string
+import time
 
 
 # constants
 IMAGES_FOLDER = 'images'
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
-SHELVE_DB = 'shelve.db'
 
 
 
@@ -85,7 +83,6 @@ def submit_target():
 												targeth=db['targeth'],
 												targetw=db['targetw'])
 
-
 @app.route('/submit_offset', methods=['POST'])
 def submit_offset():
 	print "db currently: ", db
@@ -113,6 +110,8 @@ def uploaded_file(filename):
 	return send_from_directory(app.config['IMAGES_FOLDER'], filename)
 
 
+
+
 # helper functions
 def allowed_file(filename):
 	return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
@@ -126,7 +125,23 @@ def construct_random_filename(filename):
 def random_string(N=6):
 	return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(N))
 
+
+
+
+# cron job: delete files older than 2 hours
+def delete_files():
+	# seconds * minutes
+	three_hours_ago = time.time() - 60 * 120
+	folder = app.config['IMAGES_FOLDER']
+	os.chdir(folder)
+	for f in os.listdir('.'):
+		if os.path.getmtime(f) < three_hours_ago:
+			print('remove %s'%f)
+			os.unlink(f)
+# to run on command line: python -c 'import app; app.delete_files()'
+
+
+
 if __name__ == '__main__':
 	app.debug=True
-	#db = shelve.open(os.path.join(app.root_path, app.config['SHELVE_DB']), protocol=HIGHEST_PROTOCOL, writeback=False)
 	app.run()

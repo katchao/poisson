@@ -86,3 +86,8 @@ label {
 	float: left;
 	margin-left: -100000px;
 }
+
+.sub {
+	color: #6d6d7f;
+	font-size: 18px;
+}
