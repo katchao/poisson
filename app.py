@@ -10,6 +10,17 @@ from contextlib import closing
 import random
 import string
 import time
+import settings
+
+if(settings.PROD):
+	class WebFactionMiddleware(object):
+	    def __init__(self, app):
+	        self.app = app
+	    def __call__(self, environ, start_response):
+	        environ['SCRIPT_NAME'] = '/imagestitch'
+	        return self.app(environ, start_response)
+
+	app.wsgi_app = WebFactionMiddleware(app.wsgi_app)
 
 
 # constants
@@ -143,5 +154,5 @@ def delete_files():
 
 
 if __name__ == '__main__':
-	app.debug=True
+	app.debug = !PROD
 	app.run()
