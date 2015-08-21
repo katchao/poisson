@@ -12,6 +12,8 @@ import string
 import time
 import settings
 
+app = Flask(__name__, static_url_path="")
+
 if(settings.PROD):
 	class WebFactionMiddleware(object):
 	    def __init__(self, app):
@@ -30,7 +32,6 @@ ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 
 
 # config
-app = Flask(__name__, static_url_path="")
 app.config['IMAGES_FOLDER'] = IMAGES_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024 # 16 MB
 app.config.from_object(__name__)
