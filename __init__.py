@@ -54,6 +54,8 @@ def submit_source():
 	if request.method == 'POST' and 'source' in request.files:
 		source = request.files['source']
 		db['source_filename'] = construct_random_filename(secure_filename(source.filename))
+		print "DB: ", db
+		print "save path: ", os.path.join(app.config['IMAGES_FOLDER'], db['source_filename'])
 		source.save(os.path.join(app.config['IMAGES_FOLDER'], db['source_filename']))
 
 		return render_template("step2.html", source_filename=db['source_filename'])
