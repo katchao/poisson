@@ -60,6 +60,8 @@ def submit_source():
 		source.save(os.path.join(app.config['IMAGES_FOLDER'], db['source_filename']))
 
 		return render_template("step2.html", source_filename=db['source_filename'])
+	else:
+		return "asdf"
 
 
 @app.route('/submit_mask', methods=['POST'])
