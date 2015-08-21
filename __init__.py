@@ -26,7 +26,10 @@ if(settings.PROD):
 
 
 # constants
-IMAGES_FOLDER = 'images'
+if(settings.PROD):
+	IMAGES_FOLDER = '/images'
+else:
+	IMAGES_FOLDER = 'images'
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 
 
@@ -43,7 +46,6 @@ db = {}
 @app.route('/')
 def index():
 	db.clear()
-	print "filename_split: ", construct_random_filename('test.jpg')
 	return render_template("step1.html")
 
 
