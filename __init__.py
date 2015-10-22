@@ -41,23 +41,23 @@ app.config.from_object(__name__)
 db = {}
 
 
-
 # routes
 @app.route('/')
 def index():
 	db.clear()
-	return render_template("step1.html")
+	return render_template("upload-images.html")
 
 
-@app.route('/submit_source', methods=['POST'])
-def submit_source():
-	if request.method == 'POST' and 'source' in request.files:
+@app.route('/submit_images', methods=['POST'])
+def submit_images():
+	if request.method == 'POST' and 'source' in request.files and 'target' in request.files:
 		source = request.files['source']
-		print "DB: ", db
 		db['source_filename'] = construct_random_filename(secure_filename(source.filename))
-		
-		print "save path: ", os.path.join(app.config['IMAGES_FOLDER'], db['source_filename'])
 		source.save(os.path.join(app.config['IMAGES_FOLDER'], db['source_filename']))
+
+		target = request.files['target']
+		db['target_filename'] = construct_random_filename(secure_filename(target.filename))
+		target.save(os.path.join(app.config['IMAGES_FOLDER'], db['target_filename']))
 
 		return render_template("step2.html", source_filename=db['source_filename'])
 	else:
@@ -74,37 +74,25 @@ def submit_mask():
 		db['mask_filename'] = construct_random_filename('mask.png')
 		maskImg.save(os.path.join(app.config['IMAGES_FOLDER'], db['mask_filename']))
 
-		return render_template("step3.html")
+		# do all the region math here and pass it into template
+		target_im = Image.open(os.path.join(app.config['IMAGES_FOLDER'], db['target_filename']))
+		source_im = Image.open(os.path.join(app.config['IMAGES_FOLDER'], db['source_filename']))
+		
+		db['mask'] = create_mask_from_image(Image.open(os.path.join(app.config['IMAGES_FOLDER'], db['mask_filename'])))
+		size_info = get_size_info(source_im, target_im, db['mask'])
+
+		db.update(size_info) # sets db values
+
+		return render_template("step4.html", target_filename=db['target_filename'],
+											half_region_height=db['half_region_height'],
+											half_region_width=db['half_region_width'],
+											targeth=db['targeth'],
+											targetw=db['targetw'])
 
 
-@app.route('/submit_target', methods=['POST'])
-def submit_target():
-	if request.method == 'POST':
-		# upload target
-		target = request.files['target']
-		if target and allowed_file(target.filename):
-			db['target_filename'] = construct_random_filename(secure_filename(target.filename))
-			print "db keys: ", db.keys()
-			target.save(os.path.join(app.config['IMAGES_FOLDER'], db['target_filename']))
-
-			# do all the region math here and pass it into template
-			target_im = Image.open(os.path.join(app.config['IMAGES_FOLDER'], db['target_filename']))
-			source_im = Image.open(os.path.join(app.config['IMAGES_FOLDER'], db['source_filename']))
-			
-			db['mask'] = create_mask_from_image(Image.open(os.path.join(app.config['IMAGES_FOLDER'], db['mask_filename'])))
-			size_info = get_size_info(source_im, target_im, db['mask'])
-
-			db.update(size_info) # sets db values
-
-			return render_template("step4.html", target_filename=db['target_filename'],
-												half_region_height=db['half_region_height'],
-												half_region_width=db['half_region_width'],
-												targeth=db['targeth'],
-												targetw=db['targetw'])
 
 @app.route('/submit_offset', methods=['POST'])
 def submit_offset():
-	print "db currently: ", db
 	if request.method == 'POST':
 		# get offsets
 		offX = int(request.form['offX'])
@@ -119,6 +107,7 @@ def submit_offset():
 		result = splice(source_im, target_im, db['mask'], offY, offX, db)
 		db['result_filename'] = construct_random_filename('result.png')
 		result.save(os.path.join(app.config['IMAGES_FOLDER'], db['result_filename']))
+		
 		return render_template("result.html", result_filename=db['result_filename'])
 
 

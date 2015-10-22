@@ -3,19 +3,17 @@
 		another-data="{{ url_for('submit_offset') }}">
 
 
+	<h2>And finally, choose where you want to paste onto by clicking somewhere below!</h2>
+	<div style="text-align: center">
+	<p><img src="{{ url_for('uploaded_file', filename = '%s' % target_filename) }}" id="target" /></p>
 
-	And finally, choose where you want to paste onto by clicking somewhere below!<br /><br />
+	<form id="offsetform" enctype="multipart/form-data">
+	</form>
+	</div>
 
-	<div class="main">
-		<p><img src="{{ url_for('uploaded_file', filename = '%s' % target_filename) }}" id="target" /></p>
+	<div class="message invalid" id="messageresult" style="display:none">The place that you have chosen is invalid. It's probably too far on the edge of the image given the size of the cut out region that you have defined earlier.<br /><br />
 
-		<form id="offsetform" enctype="multipart/form-data">
-		</form>
-
-		<div class="message invalid" id="messageresult" style="display:none">The place that you have chosen is invalid. It's probably too far on the edge of the image given the size of the cut out region that you have defined earlier.<br /><br />
-
-		Try choosing somewhere more in the middle of your image if this is the case.
-		</div>
+	Try choosing somewhere more in the middle of your image if this is the case.
 	</div>
 
 	<script>
@@ -65,7 +63,7 @@
 						$('#messageresult').html('It seems as if you\'re constantly selecting an invalid point. It might be the case that the region you cut out earlier is bigger than the image that you\'re trying to paste on.<br /><br />Unfortunately, if that is so, you will have to select either a smaller region or a bigger image to paste on. :(');
 					}
 
-					$('#messageresult').show();
+					$('#messageresult').fadeIn();
 				}
 
 				else { // offsets okay
@@ -80,7 +78,7 @@
 
 				// loading message
 				$('#messageresult').html('Prepare yourself. Your image is processing...');
-				$('#messageresult').attr('class', 'message valid').show();
+				$('#messageresult').attr('class', 'message valid').fadeIn();
 
 		    	// process the form
     			$.ajax({
@@ -90,7 +88,7 @@
         			cache: false,
     			})
     			.done(function(data) {
-    				$('#main-content').html(data);
+    				doneLoading(data);
     			});
 
     			return false;

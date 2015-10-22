@@ -20,4 +20,16 @@ function validate(input) {
 	}
 }
 
-// display a preview of the selected uploaded file
+function enable(button) {
+	button.prop('disabled', false);
+}
+
+function disable(button) {
+	button.prop('disabled', true);
+}
+
+function doneLoading(data) {
+	$('#main-content').hide("slide", 300, function() {
+		$("#main-content").html(data).show("drop",300);
+	});
+}

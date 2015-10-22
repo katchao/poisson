@@ -1,9 +1,14 @@
-Success! :)<br /><br />
+<div style="text-align: center">
 
-<div class="main">
+	<h2>Success!</h2>
+	
+	<p><img src="{{ url_for('uploaded_file', filename = '%s' % result_filename) }}" id="result-image" /></p>
 
-	<img src="{{ url_for('uploaded_file', filename = '%s' % result_filename) }}" />
-
-	<p class="button"><a href="/">And now click here to try it all again!</a></p>
-
+	<p><input type="button" class="button" id="start-over" value="And now click here to try it all again!" /></p>
 </div>
+
+<script>
+	$("#start-over").click(function() {
+		window.location = "/";
+	});
+</script>

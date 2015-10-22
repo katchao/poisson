@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block head %}
+	{{ super() }}
+{% endblock %}
+
+{% block content %}
+
+	<h2>First, upload the images that you would like to splice together.</h2>
+
+	<div class="main">
+
+		<form id="sourceform" enctype="multipart/form-data">
+
+
+
+		<div id="upload-image-grid">
+		<div class="left">
+			<!-- Source upload -->
+		    <label for="name">Select a mask image:</label> <input type="file" id="source" name="source" /><br />
+		    <div class="blurb">This is the image that you're going to be cutting from.</div>
+
+			<div class="message invalid" id="sourcepreview">No image has been selected yet!</div>
+		</div>
+
+		<div class="right">
+			<!-- Target upload -->
+		    <label for="name">Select a background image:</label> <input type="file" id="target" name="target" /><br />
+		    <div class="blurb">This is the image that you're going to be pasting onto.</div>
+
+			<div class="message invalid" id="targetpreview">No image has been selected yet!</div>
+		</div>
+		</div>
+
+		<br />
+		<div style="text-align: right">
+		<input type="button" class="button" id="submit-images" value="Proceed to the next step. &raquo;" disabled />
+		</div>
+		</form>
+
+	</div>
+
+
+
+	<!-- Javascript -->
+	<script>
+		var sourceValid = false;
+		var targetValid = false;
+		var submitButton = $("#submit-images");
+
+		$(function() {
+			var reader = new FileReader();
+
+			function updateSubmitButton() {
+				if(sourceValid && targetValid) { // both images are valid
+					enable(submitButton);
+				} else {
+					disable(submitButton);
+				}
+			}
+
+			function changeCallback(preview, bool) {
+				return function() {
+					if (this.files && this.files[0]) {
+						var valid = validate(this.files[0]);
+						var isSource = preview.is($("#sourcepreview"));
+
+						if(valid == -1) { // wrong filetype
+							preview.attr('class', 'message invalid').show();
+							preview.html('The file is of the wrong type. :( Please choose either a JPG, PNG, or GIF file.');
+							sourceValid = (isSource) ? false : sourceValid;
+							targetValid = (isSource) ? targetValid : false;
+							updateSubmitButton();
+						}
+
+						if(valid == -2) { // wrong file size
+							preview.attr('class', 'message invalid').show();
+							preview.html('The file exceeds 1MB. :( Please choose a smaller file.');
+							sourceValid = (isSource) ? false : sourceValid;
+							targetValid = (isSource) ? targetValid : false;
+							updateSubmitButton();
+						}
+
+						// image is valid
+						if(valid == 1) {
+							sourceValid = (isSource) ? true : sourceValid;
+							targetValid = (isSource) ? targetValid : true;
+
+							reader.onload = function (e) {
+								preview.attr('class', 'message valid').show();
+								preview.html("<div style=\"text-align: center\"><img src=" + e.target.result + " /></div>");
+							}
+							reader.readAsDataURL(this.files[0]);
+							updateSubmitButton();
+
+						}
+					}
+				}
+			}
+
+			$("#source").change(changeCallback( $("#sourcepreview"), sourceValid ));
+			$("#target").change(changeCallback( $("#targetpreview"), targetValid ));
+
+			$("#sourceform").submit(function(e) {
+				// stop form from submitting normally
+				e.preventDefault();
+
+				var formData = new FormData($('#sourceform')[0]);
+
+        		// process the form
+        		$.ajax({
+            		type: 'POST',
+            		url: '/submit_images',
+            		data: formData,
+
+            		contentType: false,
+            		dataType : false,
+                    processData: false
+        		})
+        		.done(function(data) {
+        			doneLoading(data);
+        		});
+
+			});
+
+			$('#submit-images').click(function(e) {
+				$('#sourceform').submit();
+			});
+		});
+	</script>
+	
+{% endblock %}
