@@ -51,8 +51,7 @@
 			mask_canv_context.fillStyle = "red";
 			mask_canv_context.fillRect(0, 0, mask_canv.width, mask_canv.height);
 		};
-
-		var source_filename = $("#template_vars").attr('data-name'); // change the preloaded source image here
+		
 		source_image.src = '{{ url_for('uploaded_file', filename = source_filename) }}';
 		  
 		var clickX = new Array(); 

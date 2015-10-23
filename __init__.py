@@ -6,13 +6,21 @@ from splice import *
 from PIL import Image
 from io import BytesIO
 import base64
-from contextlib import closing
 import random
 import string
 import time
 import settings
 
+# shelve
+from cPickle import HIGHEST_PROTOCOL
+from contextlib import closing
+import shelve
+
+
+
+
 app = Flask(__name__, static_url_path="")
+
 
 if(settings.PROD):
 	class WebFactionMiddleware(object):
@@ -37,9 +45,11 @@ ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 # config
 app.config['IMAGES_FOLDER'] = IMAGES_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024 # 16 MB
+app.config['SHELVE_DB'] = 'shelve.db'
 app.config.from_object(__name__)
-db = {}
 
+#db = shelve.open(os.path.join(app.root_path, app.config['SHELVE_DB']), protocol=HIGHEST_PROTOCOL, writeback=True)
+db = {}
 
 # routes
 @app.route('/')
@@ -82,6 +92,8 @@ def submit_mask():
 		size_info = get_size_info(source_im, target_im, db['mask'])
 
 		db.update(size_info) # sets db values
+
+		print db.keys()
 
 		return render_template("step4.html", target_filename=db['target_filename'],
 											half_region_height=db['half_region_height'],
