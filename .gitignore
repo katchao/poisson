@@ -4,4 +4,6 @@
 .DS_Store
 settings.py
 *.png
-*.jpg
+*.jp
+*.rdb
+*.db
