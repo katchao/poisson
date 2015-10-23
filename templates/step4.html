@@ -84,8 +84,8 @@
     			$.ajax({
         			type: 'POST',
         			url: '/submit_offset', // the url where we want to POST
-        			data: { offY: offY, offX: offX },
-        			cache: false,
+        			data: { offY: offY, offX: offX }
+        			//cache: false,
     			})
     			.done(function(data) {
     				doneLoading(data);

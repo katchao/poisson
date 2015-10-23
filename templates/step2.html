@@ -151,8 +151,8 @@
     		$.ajax({
         		type: 'POST',
         		url: '/submit_mask', // the url where we want to POST
-        		data: { imgData: dataURL },
-        		cache: false,
+        		data: { imgData: dataURL }
+        		//cache: false,
     		})
 		    .done(function(data) {
 				doneLoading(data);

@@ -76,6 +76,7 @@ Returns:
 """
 
 def splice(source, target, mask, offY, offX, db):
+    print "db['targeth']:", db
     #define coordinates of destination in target image if difference sizes
     if db['targeth'] != db['sourceh'] or db['targetw'] != db['sourcew']:
         db['startX_offset'] = offX - db['half_region_height']
