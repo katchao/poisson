@@ -176,7 +176,6 @@ def clear():
 # routes
 @app.route('/')
 def index():
-	session.clear()
 	print "session keys 1: ", session.keys()
 	return render_template("upload-images.html")
 
