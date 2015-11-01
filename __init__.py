@@ -179,6 +179,10 @@ def index():
 	print "session keys 1: ", session.keys()
 	return render_template("upload-images.html")
 
+@app.route('/testing')
+def testing():
+	return "Hello World"
+
 
 @app.route('/submit_images', methods=['POST'])
 def submit_images():
