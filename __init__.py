@@ -3,7 +3,6 @@ import os
 from flask import Flask, session, render_template, request, url_for, send_from_directory
 
 from werkzeug import secure_filename
-
 from splice import *
 from PIL import Image
 from io import BytesIO
@@ -12,12 +11,8 @@ import random
 import string
 import time
 import settings
-import sqlite3
 import json
 import numpy as np
-
-
-
 from flask.sessions import SessionInterface, SessionMixin
 from redis import Redis
 from uuid import uuid4
@@ -27,10 +22,9 @@ from datetime import timedelta
 
 
 
-
 app = Flask(__name__, static_url_path="")
-
-
+here = os.path.dirname(__file__)
+"""
 if(settings.PROD):
 	class WebFactionMiddleware(object):
 	    def __init__(self, app):
@@ -40,13 +34,8 @@ if(settings.PROD):
 	        return self.app(environ, start_response)
 
 	app.wsgi_app = WebFactionMiddleware(app.wsgi_app)
-
-
-# constants
-if(settings.PROD):
-	IMAGES_FOLDER = '/images'
-else:
-	IMAGES_FOLDER = 'images'
+"""
+IMAGES_FOLDER = os.path.join(here, 'images/')
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 
 class RedisSession(CallbackDict, SessionMixin):
