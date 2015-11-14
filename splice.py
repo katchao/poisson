@@ -1,4 +1,4 @@
-from PIL import Image, ImageTk
+from PIL import Image
 import numpy
 from scipy.signal import *
 from scipy.sparse import lil_matrix, csr_matrix
